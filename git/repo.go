@@ -8,14 +8,10 @@ import (
 )
 
 type Repo struct {
-	Host string
-	Name string
-	Path string
-}
-type PrivateRepo struct {
-	User  string
-	Token string
-	_     Repo
+	Protocol string
+	Host     string
+	Name     string
+	Path     string
 }
 
 func (repo *Repo) Clone() (string, error) {
@@ -24,8 +20,8 @@ func (repo *Repo) Clone() (string, error) {
 	if err != nil {
 		return "failed to create path", err
 	}
-	log.Printf("%s %s %s %s\n", "git", "clone", repo.Host+"/"+repo.Name+".git", repo.Path)
-	cmd := exec.Command("git", "clone", repo.Host+"/"+repo.Name+".git", repo.Path)
+	log.Printf("%s %s %s %s\n", "git", "clone", repo.Protocol+"://"+repo.Host+"/"+repo.Name+".git", repo.Path)
+	cmd := exec.Command("git", "clone", repo.Protocol+"://"+repo.Host+"/"+repo.Name+".git", repo.Path)
 
 	out, err := cmd.Output()
 
