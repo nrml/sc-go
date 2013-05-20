@@ -1,10 +1,10 @@
 package git
 
 import (
-	"errors"
-	"fmt"
+	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Repo struct {
@@ -18,45 +18,47 @@ type PrivateRepo struct {
 	_     Repo
 }
 
-//const gitPath = "/usr/local/git/bin/git"
-
 func (repo *Repo) Clone() (string, error) {
 	err := repo.verifyPath(repo.Path)
 
 	if err != nil {
 		return "failed to create path", err
 	}
-
-	fmt.Println("trying to clone")
-
-	fmt.Println("cloning with : git clone " + repo.Host + "/" + repo.Name + ".git " + repo.Path)
-
+	log.Printf("%s %s %s %s\n", "git", "clone", repo.Host+"/"+repo.Name+".git", repo.Path)
 	cmd := exec.Command("git", "clone", repo.Host+"/"+repo.Name+".git", repo.Path)
 
 	out, err := cmd.Output()
-
-	if err != nil {
-
-		fmt.Println("error exec git:  " + err.Error())
-	}
 
 	return string(out), err
 }
 func (repo *Repo) Pull() {
 
 }
-func (repo *Repo) Checkout() {
+func (repo *Repo) Checkout(flags []string) (string, error) {
+	err := repo.verifyPath(repo.Path)
 
+	if err != nil {
+		return "failed to create path", err
+	}
+
+	log.Printf("%s %s %s\n", "git", "checkout", strings.Join(flags, " "))
+
+	err = os.Chdir(repo.Path)
+
+	if err != nil {
+		return "cannnot change dir to path", err
+	}
+
+	cmd := exec.Command("git", "checkout", strings.Join(flags, " "))
+
+	out, err := cmd.Output()
+
+	return string(out), err
 }
 func (repo *Repo) Push() {
 
 }
 func (repo *Repo) verifyPath(path string) error {
 	err := os.MkdirAll(path, os.ModeDir|os.ModePerm|os.ModeAppend)
-	if err != nil {
-		return errors.New("failed to create paths: " + path)
-	}
 	return err
-
-	//return err
 }
